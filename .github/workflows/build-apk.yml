@@ -25,16 +25,17 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Configure Android SDK
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
+
+      - name: Install required Android SDK packages
         shell: bash
         run: |
-          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
-          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
-          if [ ! -x "$SDKMANAGER" ]; then
-            SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
-          fi
+          SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
           yes | "$SDKMANAGER" --licenses >/dev/null
-          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Extract uploaded project archive
         shell: bash
@@ -47,16 +48,13 @@ jobs:
       - name: Locate Android app module
         shell: bash
         run: |
-          PROJECT_DIR=""
           APP_BUILD="$(find "$PWD" -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -not -path '*/.gradle/*' | sort | head -n 1)"
-          if [ -n "$APP_BUILD" ]; then
-            PROJECT_DIR="$(dirname "$(dirname "$APP_BUILD")")"
-          fi
-          if [ -z "$PROJECT_DIR" ]; then
+          if [ -z "$APP_BUILD" ]; then
             echo "No Android app module found. Files in repository:"
             find . -maxdepth 6 -type f | sort | head -300
             exit 1
           fi
+          PROJECT_DIR="$(dirname "$(dirname "$APP_BUILD")")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
           echo "Building project at $PROJECT_DIR"
 
