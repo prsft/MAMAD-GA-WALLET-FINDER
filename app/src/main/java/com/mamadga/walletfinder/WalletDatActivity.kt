@@ -149,7 +149,7 @@ class WalletDatActivity : Activity() {
                     if(count<=0) "خالی" else b.take(count).joinToString(" ") { "%02X".format(it) }
                 } ?: "غیرقابل‌خواندن"
                 fileStatus.text = "انتخاب شد: $name"
-                fileDetails.text = "حجم: \${if(size>=0) human(size) else "نامشخص"}\\nهدر: $header\\nفقط خوانایی اولیه بررسی شد."
+                fileDetails.text = "حجم: ${if(size>=0) human(size) else \"نامشخص\"}\\nهدر: $header\\nفقط خوانایی اولیه بررسی شد."
             }
         } catch(e:Exception) { toast(e.localizedMessage ?: "خطا") }
     }
