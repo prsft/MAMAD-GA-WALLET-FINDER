@@ -75,6 +75,11 @@ jobs:
           }
           GRADLE
 
+      - name: Print Kotlin source around compiler diagnostic
+        shell: bash
+        run: |
+          nl -ba "$PROJECT_DIR/app/src/main/java/com/mamadga/walletfinder/MainActivity.kt" | sed -n '115,130p'
+
       - name: Build debug APK and run unit tests
         shell: bash
         run: |
