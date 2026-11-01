@@ -8,21 +8,21 @@ class WalletCoreTest {
     private val vector = "abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon abandon about"
 
     @Test fun bip44MatchesPublishedFirstReceiveAddress() {
-        val wallet = WalletCore.derive(vector, "", WalletCore.AddressType.LEGACY)
+        val wallet = WalletCore.derive(vector, "TREZOR", WalletCore.AddressType.LEGACY)
         assertEquals("1LqBGSKuX5yYUonjxT5qGfpUsXKYYWeabA", wallet.address)
         assertEquals("m/44'/0'/0'/0/0", wallet.path)
         assertTrue(WalletCore.validateMainnetAddress(wallet.address))
     }
 
     @Test fun bip49MatchesPublishedNestedSegwitVector() {
-        val wallet = WalletCore.derive(vector, "", WalletCore.AddressType.NESTED_SEGWIT)
+        val wallet = WalletCore.derive(vector, "TREZOR", WalletCore.AddressType.NESTED_SEGWIT)
         assertEquals("37VucYSaXLCAsxYyAPfbSi9eh4iEcbShgf", wallet.address)
         assertEquals("m/49'/0'/0'/0/0", wallet.path)
         assertTrue(WalletCore.validateMainnetAddress(wallet.address))
     }
 
     @Test fun bip84MatchesPublishedNativeSegwitVector() {
-        val wallet = WalletCore.derive(vector, "", WalletCore.AddressType.NATIVE_SEGWIT)
+        val wallet = WalletCore.derive(vector, "TREZOR", WalletCore.AddressType.NATIVE_SEGWIT)
         assertEquals("bc1qcr8te4kr609gcawutmrza0j4xv80jy8z306fyu", wallet.address)
         assertEquals("m/84'/0'/0'/0/0", wallet.path)
         assertTrue(WalletCore.validateMainnetAddress(wallet.address))
