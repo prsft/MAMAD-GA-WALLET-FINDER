@@ -34,7 +34,6 @@ jobs:
         shell: bash
         run: |
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
-          yes | "$SDKMANAGER" --licenses >/dev/null
           "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
 
       - name: Extract uploaded project archive
