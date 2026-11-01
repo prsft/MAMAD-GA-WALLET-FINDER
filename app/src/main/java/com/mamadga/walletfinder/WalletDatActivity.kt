@@ -31,7 +31,7 @@ class WalletDatActivity : Activity() {
     }
 
     private fun buildScreen() {
-        val scroll = ScrollView(this).apply { setBackgroundColor(background) }
+        val scroll = ScrollView(this).apply { setBackgroundColor(this@WalletDatActivity.background) }
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(22), dp(28), dp(22), dp(28))
@@ -133,7 +133,7 @@ class WalletDatActivity : Activity() {
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
             setPadding(dp(18), dp(18), dp(18), dp(18))
-            setBackgroundColor(panel)
+            setBackgroundColor(this@WalletDatActivity.panel)
             build()
             layoutParams = params(top = 8, bottom = 8)
         }
