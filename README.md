@@ -1,9 +1,9 @@
 # MAMAD GA WALLET FINDER
 
-**Version:** 0.2.0-alpha  
+**Version:** 0.2.0-beta  
 **Platform:** Android (min API 26; target API 35)  
 **Network:** Bitcoin Mainnet only  
-**Status:** Expanded alpha source. CI compilation and published-vector tests are required before each build; physical-device verification and independent security audit remain outstanding.
+**Status:** Redesigned beta interface; core wallet functionality remains limited and requires device testing. CI compilation and published-vector tests are required before each build; physical-device verification and independent security audit remain outstanding.
 
 > **Important:** This is not a production-audited wallet. Do not deposit significant funds. Verify recovery independently before use. Never share a recovery phrase or private key.
 
@@ -19,6 +19,7 @@
 - Multiple local wallet records stored as AES-256-GCM ciphertext in app-private storage with an Android Keystore key.
 - Public-address balance and recent transaction lookup via Blockstream Esplora HTTPS API.
 - QR display, address copy/share, and local Native SegWit vanity-prefix search.
+- Redesigned Persian/English interface with a dark navy and gold visual system, clearer navigation cards, and separated wallet tools.
 - Persian/English UI toggle.
 - Screenshot/recents protection via FLAG_SECURE; recovery phrase and WIF reveal gated by device authentication.
 
