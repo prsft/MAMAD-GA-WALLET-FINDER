@@ -60,26 +60,6 @@ jobs:
           echo "APP_BUILD=$APP_BUILD" >> "$GITHUB_ENV"
           echo "Building project at $PROJECT_DIR"
 
-      - name: Enforce consistent Java and Kotlin JVM target
-        shell: bash
-        run: |
-          cat >> "$APP_BUILD" <<'GRADLE'
-
-          // CI compatibility: align Java and Kotlin bytecode targets.
-          tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
-              sourceCompatibility = "1.8"
-              targetCompatibility = "1.8"
-          }
-          tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
-              kotlinOptions.jvmTarget = "1.8"
-          }
-          GRADLE
-
-      - name: Print Kotlin source around compiler diagnostic
-        shell: bash
-        run: |
-          nl -ba "$PROJECT_DIR/app/src/main/java/com/mamadga/walletfinder/MainActivity.kt" | sed -n '115,130p'
-
       - name: Build debug APK and run unit tests
         shell: bash
         run: |
