@@ -107,9 +107,9 @@ class WalletDatActivity : Activity() {
             }
         }
         candidates = out.toList()
-        result.text = "\${candidates.size} کاندیدا ساخته شد.\\n\\n" +
-            candidates.take(40).mapIndexed { i,s -> "\${i+1}. $s" }.joinToString("\\n") +
-            if (candidates.size > 40) "\\n… و \${candidates.size-40} مورد دیگر" else ""
+        result.text = "${candidates.size} کاندیدا ساخته شد.\n\n" +
+            candidates.take(40).mapIndexed { i, s -> "${i + 1}. $s" }.joinToString("\n") +
+            if (candidates.size > 40) "\n… و ${candidates.size - 40} مورد دیگر" else ""
     }
 
     private fun split(s:String) = s.split(Regex("[,،;؛\\\\s]+")).map { it.trim() }.filter { it.isNotEmpty() }.distinct()
@@ -149,7 +149,7 @@ class WalletDatActivity : Activity() {
                     if(count<=0) "خالی" else b.take(count).joinToString(" ") { "%02X".format(it) }
                 } ?: "غیرقابل‌خواندن"
                 fileStatus.text = "انتخاب شد: $name"
-                fileDetails.text = "حجم: ${if(size>=0) human(size) else \"نامشخص\"}\\nهدر: $header\\nفقط خوانایی اولیه بررسی شد."
+                fileDetails.text = "حجم: ${if (size >= 0) human(size) else "نامشخص"}\nهدر: $header\nفقط خوانایی اولیه بررسی شد."
             }
         } catch(e:Exception) { toast(e.localizedMessage ?: "خطا") }
     }
