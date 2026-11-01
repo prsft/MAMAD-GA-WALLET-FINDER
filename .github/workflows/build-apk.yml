@@ -55,7 +55,23 @@ jobs:
           fi
           PROJECT_DIR="$(dirname "$(dirname "$APP_BUILD")")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "APP_BUILD=$APP_BUILD" >> "$GITHUB_ENV"
           echo "Building project at $PROJECT_DIR"
+
+      - name: Enforce consistent Java and Kotlin JVM target
+        shell: bash
+        run: |
+          cat >> "$APP_BUILD" <<'GRADLE'
+
+          // CI compatibility: align Java and Kotlin bytecode targets.
+          tasks.withType<org.gradle.api.tasks.compile.JavaCompile>().configureEach {
+              sourceCompatibility = "17"
+              targetCompatibility = "17"
+          }
+          tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile>().configureEach {
+              kotlinOptions.jvmTarget = "17"
+          }
+          GRADLE
 
       - name: Build debug APK and run unit tests
         shell: bash
@@ -64,6 +80,7 @@ jobs:
           gradle --no-daemon test assembleDebug
 
       - name: Upload APK and test reports
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: MAMAD-GA-WALLET-FINDER-APK
