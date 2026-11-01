@@ -4,11 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [ main, master ]
-    paths:
-      - '.github/workflows/build-apk.yml'
-      - 'MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip'
-      - '**/*.kt'
-      - '**/*.kts'
 
 permissions:
   contents: read
@@ -27,48 +22,49 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
-      - name: Extract project archive if present
+      - name: Configure Android SDK
+        shell: bash
+        run: |
+          echo "ANDROID_HOME=$ANDROID_SDK_ROOT" >> "$GITHUB_ENV"
+          SDKMANAGER="$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then
+            SDKMANAGER="$(find "$ANDROID_SDK_ROOT/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
+          fi
+          yes | "$SDKMANAGER" --licenses >/dev/null
+          "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+
+      - name: Extract uploaded project archive
         shell: bash
         run: |
           if [ -f MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip ]; then
             mkdir -p extracted
-            unzip -q MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip -d extracted
+            unzip -oq MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip -d extracted
           fi
 
-      - name: Locate Android project
+      - name: Locate Android app module
         shell: bash
         run: |
           PROJECT_DIR=""
-          if [ -f settings.gradle.kts ] || [ -f settings.gradle ]; then
-            PROJECT_DIR="$PWD"
-          else
-            SETTINGS_FILE="$(find "$PWD" -type f \( -name settings.gradle.kts -o -name settings.gradle \) -not -path '*/.gradle/*' | head -n 1)"
-            if [ -z "$SETTINGS_FILE" ]; then
-              echo "Could not find settings.gradle(.kts) in repository or uploaded archive."
-              find . -maxdepth 4 -type f | sort | head -200
-              exit 1
-            fi
-            PROJECT_DIR="$(dirname "$SETTINGS_FILE")"
+          APP_BUILD="$(find "$PWD" -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -not -path '*/.gradle/*' | sort | head -n 1)"
+          if [ -n "$APP_BUILD" ]; then
+            PROJECT_DIR="$(dirname "$(dirname "$APP_BUILD")")"
+          fi
+          if [ -z "$PROJECT_DIR" ]; then
+            echo "No Android app module found. Files in repository:"
+            find . -maxdepth 6 -type f | sort | head -300
+            exit 1
           fi
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "Using project directory: $PROJECT_DIR"
+          echo "Building project at $PROJECT_DIR"
 
-      - name: Install Android SDK packages
-        run: sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
-
-      - name: Build debug APK
+      - name: Build debug APK and run unit tests
         shell: bash
         run: |
           cd "$PROJECT_DIR"
-          if [ -f ./gradlew ]; then
-            chmod +x ./gradlew
-            ./gradlew --no-daemon test assembleDebug
-          else
-            gradle --no-daemon test assembleDebug
-          fi
+          gradle --no-daemon test assembleDebug
 
       - name: Upload APK and test reports
         uses: actions/upload-artifact@v4
@@ -76,5 +72,5 @@ jobs:
           name: MAMAD-GA-WALLET-FINDER-APK
           path: |
             ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
-            ${{ env.PROJECT_DIR }}/app/build/reports/tests/testDebugUnitTest/
+            ${{ env.PROJECT_DIR }}/app/build/reports/tests/
           if-no-files-found: error
