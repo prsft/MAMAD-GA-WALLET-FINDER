@@ -1,6 +1,8 @@
 package com.mamadga.walletfinder
 
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.view.Gravity
 import android.view.View
@@ -52,9 +54,42 @@ class MainActivity : FragmentActivity() {
         val v = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(color); this.gravity = gravity; if (bold) setTypeface(null, 1); setPadding(4, 8, 4, 8) }
         root.addView(v, LinearLayout.LayoutParams(-1, -2)); return v
     }
+    private fun rounded(fill: Int, stroke: Int = Color.TRANSPARENT, radius: Float = 22f) =
+        GradientDrawable().apply { setColor(fill); cornerRadius = radius * resources.displayMetrics.density
+            if (stroke != Color.TRANSPARENT) setStroke((1 * resources.displayMetrics.density).toInt(), stroke) }
+
     private fun button(value: String, action: () -> Unit) {
-        val b = Button(this).apply { text = value; setTextColor(black); setBackgroundColor(gold); isAllCaps = false; setOnClickListener { action() } }
+        val b = Button(this).apply {
+            text = value; setTextColor(0xFFE9EDF5.toInt()); textSize = 14f
+            isAllCaps = false; minHeight = 54; stateListAnimator = null
+            background = rounded(0xFF182235.toInt(), 0xFF29364B.toInt(), 16f)
+            setPadding(18, 12, 18, 12); setOnClickListener { action() }
+        }
         val p = LinearLayout.LayoutParams(-1, -2); p.setMargins(0, 5, 0, 5); root.addView(b, p)
+    }
+    private fun primaryButton(value: String, action: () -> Unit) {
+        val b = Button(this).apply {
+            text = value; setTextColor(0xFF101827.toInt()); textSize = 15f
+            isAllCaps = false; minHeight = 58; stateListAnimator = null
+            background = rounded(0xFFFFC857.toInt(), radius = 18f)
+            setPadding(18, 12, 18, 12); setOnClickListener { action() }
+        }
+        val p = LinearLayout.LayoutParams(-1, -2); p.setMargins(0, 8, 0, 8); root.addView(b, p)
+    }
+    private fun section(title: String, subtitle: String, action: String, onClick: () -> Unit) {
+        val card = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; setPadding(18, 14, 18, 14)
+            background = rounded(0xFF121B2A.toInt(), 0xFF243149.toInt(), 20f)
+        }
+        val heading = TextView(this).apply { text = title; textSize = 16f; setTextColor(0xFFF4F6FA.toInt()); setTypeface(null, 1) }
+        val detail = TextView(this).apply { text = subtitle; textSize = 12f; setTextColor(0xFF9EACC1.toInt()); setPadding(0, 5, 0, 10) }
+        val cta = Button(this).apply {
+            text = action; isAllCaps = false; textSize = 13f; setTextColor(0xFFFFD77A.toInt())
+            background = rounded(0xFF202D42.toInt(), radius = 14f); stateListAnimator = null
+            setOnClickListener { onClick() }
+        }
+        card.addView(heading); card.addView(detail); card.addView(cta)
+        val params = LinearLayout.LayoutParams(-1, -2); params.setMargins(0, 7, 0, 7); root.addView(card, params)
     }
     private fun space(h: Int) { root.addView(View(this), LinearLayout.LayoutParams(1, h)) }
     private fun field(hint: String, multi: Boolean = false): EditText = EditText(this).apply {
@@ -64,17 +99,52 @@ class MainActivity : FragmentActivity() {
         root.addView(this, LinearLayout.LayoutParams(-1, -2).apply { bottomMargin = 8 })
     }
     private fun home() {
-        base(text("کیف پول بیت‌کوین • Mainnet", "Bitcoin wallet • Mainnet"))
-        label(text("کلیدها روی دستگاه ساخته می‌شوند؛ عبارت بازیابی را هرگز به کسی ندهید.", "Keys are generated on this device. Never share your recovery phrase."), 13, 0xFFCCCCCC.toInt(), false, Gravity.CENTER)
-        button(text("＋ ساخت کیف پول جدید", "＋ Create wallet")) { createDialog() }
-        button(text("↻ بازیابی با عبارت ۱۲/۲۴ کلمه‌ای", "↻ Recover from 12/24 words")) { recoverDialog() }
-        button(text("▣ کیف پول‌های من", "▣ My wallets")) { walletsPage() }
-        button(text("⌕ بررسی موجودی آدرس عمومی", "⌕ Check public address balance")) { checkAddressDialog() }
-        button(text("✦ تولید Vanity Address", "✦ Vanity address")) { vanityDialog() }
-        button(text("⚙ تنظیمات", "⚙ Settings")) { settingsPage() }
+        base("")
+        label("MAMAD GA", 13, 0xFF9EACC1.toInt(), true, Gravity.CENTER)
+        label(text("کیف پول بیت‌کوین", "BITCOIN WALLET"), 25, 0xFFF4F6FA.toInt(), true, Gravity.CENTER)
+        label(text("دارایی دیجیتال تو، با کنترل کامل خودت", "Your bitcoin. Your keys. Your control."), 13, 0xFF9EACC1.toInt(), false, Gravity.CENTER)
         space(12)
-        label(text("هشدار: نسخه آلفا است؛ برای نگهداری مبالغ واقعی استفاده نکنید. آدرس‌های موجودی‌دار جست‌وجو نمی‌شوند.",
-            "WARNING: Alpha software; do not store significant funds. This app does not hunt for funded addresses."), 12, gold)
+        val hero = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL; setPadding(20, 22, 20, 22)
+            background = rounded(0xFF1A2940.toInt(), 0xFF334968.toInt(), 24f)
+        }
+        hero.addView(TextView(this).apply {
+            text = text("امنیت از همین‌جا شروع می‌شود", "SECURITY STARTS HERE")
+            textSize = 11f; setTextColor(0xFFFFD77A.toInt()); setTypeface(null, 1)
+        })
+        hero.addView(TextView(this).apply {
+            text = text("عبارت بازیابی فقط در اختیار توست.", "Your recovery phrase belongs to you alone.")
+            textSize = 19f; setTextColor(0xFFF4F6FA.toInt()); setTypeface(null, 1); setPadding(0, 8, 0, 5)
+        })
+        hero.addView(TextView(this).apply {
+            text = text("ما هرگز آن را از دستگاه خارج نمی‌کنیم. آن را روی کاغذ نگه دار و با هیچ‌کس به اشتراک نگذار.",
+                "It stays on this device. Back it up offline and never share it with anyone.")
+            textSize = 12f; setTextColor(0xFFB8C5D8.toInt())
+        })
+        root.addView(hero, LinearLayout.LayoutParams(-1, -2))
+        space(12)
+        primaryButton(text("＋  ساخت کیف پول جدید", "＋  Create a new wallet")) { createDialog() }
+        section(text("بازیابی کیف پول", "Recover wallet"),
+            text("با عبارت بازیابی ۱۲ یا ۲۴ کلمه‌ای خودت.", "Restore with your 12- or 24-word recovery phrase."),
+            text("شروع بازیابی  ←", "Start recovery  →")) { recoverDialog() }
+        section(text("کیف پول‌های من", "My wallets"),
+            text("مدیریت آدرس‌ها و مشاهده موجودی و تراکنش‌ها.", "Manage your addresses, balances and activity."),
+            text("مشاهده کیف پول‌ها  ←", "View wallets  →")) { walletsPage() }
+        section(text("ابزارهای بیت‌کوین", "Bitcoin tools"),
+            text("بررسی آدرس عمومی یا ساخت آدرس Vanity به‌صورت محلی.", "Look up a public address or generate a local vanity address."),
+            text("باز کردن ابزارها  ←", "Open tools  →")) { toolsPage() }
+        space(10)
+        label(text("فقط Bitcoin Mainnet  •  نسخه آزمایشی", "BITCOIN MAINNET ONLY  •  BETA"), 10, 0xFF8392A8.toInt(), true, Gravity.CENTER)
+    }
+    private fun toolsPage() {
+        base(text("ابزارهای بیت‌کوین", "Bitcoin tools"))
+        section(text("بررسی موجودی", "Address lookup"),
+            text("فقط آدرس عمومی را وارد کن؛ عبارت بازیابی یا کلید خصوصی لازم نیست.", "Enter a public address only. Never enter a seed or private key here."),
+            text("بررسی آدرس  ←", "Check address  →")) { checkAddressDialog() }
+        section(text("Vanity address", "Vanity address"),
+            text("جست‌وجوی محلی پیشوند Native SegWit؛ مصرف باتری و زمان ممکن است زیاد باشد.", "Local Native SegWit prefix search; may use significant time and battery."),
+            text("شروع جست‌وجو  ←", "Start search  →")) { vanityDialog() }
+        button(text("بازگشت به خانه", "Back to home")) { home() }
     }
     private fun createDialog() {
         val box = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(24, 8, 24, 0) }
@@ -103,11 +173,16 @@ class MainActivity : FragmentActivity() {
         val name = EditText(this).apply { hint = text("نام کیف پول", "Wallet name"); setSingleLine() }; box.addView(name)
         val phrase = EditText(this).apply { hint = text("عبارت بازیابی را وارد کنید", "Enter recovery phrase"); minLines = 3 }; box.addView(phrase)
         val pass = EditText(this).apply { hint = text("BIP39 passphrase (در صورت وجود)", "BIP39 passphrase, if used"); setSingleLine() }; box.addView(pass)
-        val types = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Native SegWit (BIP84)", "Legacy (BIP44)")) }; box.addView(types)
+        val types = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Native SegWit (BIP84)", "Legacy (BIP44)", "Nested SegWit (BIP49)", "Taproot (BIP86)")) }; box.addView(types)
         androidx.appcompat.app.AlertDialog.Builder(this).setTitle(text("بازیابی کیف پول", "Recover wallet")).setView(box)
             .setNegativeButton(text("انصراف", "Cancel"), null).setPositiveButton(text("اعتبارسنجی و بازیابی", "Validate & recover")) { _, _ ->
                 runCatching {
-                    val type = if (types.selectedItemPosition == 0) WalletCore.AddressType.NATIVE_SEGWIT else WalletCore.AddressType.LEGACY
+                    val type = when (types.selectedItemPosition) {
+                        1 -> WalletCore.AddressType.LEGACY
+                        2 -> WalletCore.AddressType.NESTED_SEGWIT
+                        3 -> WalletCore.AddressType.TAPROOT
+                        else -> WalletCore.AddressType.NATIVE_SEGWIT
+                    }
                     val result = WalletCore.derive(phrase.text.toString(), pass.text.toString(), type)
                     val record = EncryptedWalletStore.Record(UUID.randomUUID().toString(), name.text.toString().ifBlank { "Recovered wallet" },
                         result.mnemonic, pass.text.toString(), result.address, result.path, type.name)
@@ -263,8 +338,8 @@ class MainActivity : FragmentActivity() {
             "Storage: AES-256-GCM with Android Keystore key. Android cloud backup is disabled."), 13)
         label(text("قفل صفحه: نمایش امن با FLAG_SECURE. مشاهده عبارت و کلید خصوصی نیازمند احراز هویت بیومتریک/قفل دستگاه است.",
             "Screen security: FLAG_SECURE. Revealing seed/private key requires device biometric or screen-lock authentication."), 13)
-        label(text("این نسخه فاقد PIN مستقل، خروجی پشتیبان رمزگذاری‌شده، اسکن QR، ارسال تراکنش، Taproot و Nested SegWit است.",
-            "This alpha does not include app PIN, encrypted backup export, QR scanning, transaction signing/broadcast, Taproot or Nested SegWit."), 13, gold)
+        label(text("این نسخه هنوز ارسال تراکنش، اسکن QR و ممیزی مستقل امنیتی ندارد.",
+            "This beta does not include transaction signing/broadcast, QR scanning or independent audited security."), 13, gold)
         label("MAMAD GA WALLET FINDER • 0.1.0-alpha", 12, 0xFFAAAAAA.toInt())
         button(text("بازگشت", "Back")) { home() }
     }
