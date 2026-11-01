@@ -81,11 +81,16 @@ class MainActivity : FragmentActivity() {
         val name = EditText(this).apply { hint = text("نام کیف پول", "Wallet name"); setSingleLine() }; box.addView(name)
         val pass = EditText(this).apply { hint = text("BIP39 passphrase اختیاری", "Optional BIP39 passphrase"); setSingleLine() }; box.addView(pass)
         val words = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("12", "24")) }; box.addView(words)
-        val types = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Native SegWit (BIP84)", "Legacy (BIP44)")) }; box.addView(types)
+        val types = Spinner(this).apply { adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_dropdown_item, listOf("Native SegWit (BIP84)", "Legacy (BIP44)", "Nested SegWit (BIP49)", "Taproot (BIP86)")) }; box.addView(types)
         androidx.appcompat.app.AlertDialog.Builder(this).setTitle(text("ساخت کیف پول", "Create wallet")).setView(box)
             .setNegativeButton(text("انصراف", "Cancel"), null).setPositiveButton(text("تولید", "Generate")) { _, _ ->
                 runCatching {
-                    val type = if (types.selectedItemPosition == 0) WalletCore.AddressType.NATIVE_SEGWIT else WalletCore.AddressType.LEGACY
+                    val type = when (types.selectedItemPosition) {
+                        1 -> WalletCore.AddressType.LEGACY
+                        2 -> WalletCore.AddressType.NESTED_SEGWIT
+                        3 -> WalletCore.AddressType.TAPROOT
+                        else -> WalletCore.AddressType.NATIVE_SEGWIT
+                    }
                     val created = WalletCore.create(if (words.selectedItemPosition == 0) 12 else 24, pass.text.toString(), type)
                     val record = EncryptedWalletStore.Record(UUID.randomUUID().toString(), name.text.toString().ifBlank { "Bitcoin wallet" },
                         created.mnemonic, pass.text.toString(), created.address, created.path, type.name)
