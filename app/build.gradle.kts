@@ -34,6 +34,7 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.8.5")
     implementation("androidx.biometric:biometric:1.1.0")
     implementation("org.bitcoinj:bitcoinj-core:0.17.1")
+    implementation("org.bouncycastle:bcprov-jdk18on:1.78.1")
     implementation("com.google.zxing:core:3.5.3")
     testImplementation("junit:junit:4.13.2")
 }
