@@ -25,8 +25,8 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 class MainActivity : FragmentActivity() {
     private val gold = 0xFFFFC857.toInt()
-    private val black = 0xFF090909.toInt()
-    private val panel = 0xFF171717.toInt()
+    private val black = 0xFF0B1220.toInt()
+    private val panel = 0xFF172235.toInt()
     private lateinit var root: LinearLayout
     private lateinit var store: EncryptedWalletStore
     private val io = Executors.newSingleThreadExecutor()
@@ -43,12 +43,10 @@ class MainActivity : FragmentActivity() {
     override fun onDestroy() { super.onDestroy(); vanityStop?.set(true); io.shutdownNow() }
     private fun text(fa: String, en: String) = if (english) en else fa
     private fun base(title: String) {
-        root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(20, 18, 20, 20); setBackgroundColor(black) }
+        root = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(20, 18, 20, 24); setBackgroundColor(0xFF0B1220.toInt()) }
         val scroll = ScrollView(this).apply { addView(root) }
         setContentView(scroll)
-        label("MAMAD GA  •  WALLET FINDER", 20, gold, true, Gravity.CENTER)
-        label(title, 16, -1, true, Gravity.CENTER)
-        space(14)
+        if (title.isNotBlank()) { label(title, 16, 0xFFF4F6FA.toInt(), true, Gravity.CENTER); space(12) }
     }
     private fun label(value: String, size: Int = 14, color: Int = -1, bold: Boolean = false, gravity: Int = Gravity.START): TextView {
         val v = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(color); this.gravity = gravity; if (bold) setTypeface(null, 1); setPadding(4, 8, 4, 8) }
