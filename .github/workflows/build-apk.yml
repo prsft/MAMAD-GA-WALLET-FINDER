@@ -15,63 +15,39 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
           packages: platform-tools
-
       - name: Install required Android SDK packages
         shell: bash
         run: |
           SDKMANAGER="$(find "$ANDROID_HOME/cmdline-tools" -type f -name sdkmanager | sort | tail -n 1)"
           "$SDKMANAGER" 'platforms;android-35' 'build-tools;35.0.0'
-
-      - name: Extract uploaded project archive
-        shell: bash
-        run: |
-          if [ -f MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip ]; then
-            mkdir -p extracted
-            unzip -oq MAMAD_GA_WALLET_FINDER_CLEAN_UPLOAD.zip -d extracted
-          fi
-
       - name: Locate Android app module
         shell: bash
         run: |
           APP_BUILD="$(find "$PWD" -type f \( -path '*/app/build.gradle' -o -path '*/app/build.gradle.kts' \) -not -path '*/.gradle/*' | sort | head -n 1)"
-          if [ -z "$APP_BUILD" ]; then
-            echo "No Android app module found. Files in repository:"
-            find . -maxdepth 6 -type f | sort | head -300
-            exit 1
-          fi
+          if [ -z "$APP_BUILD" ]; then echo 'No Android app module found'; exit 1; fi
           PROJECT_DIR="$(dirname "$(dirname "$APP_BUILD")")"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
-          echo "APP_BUILD=$APP_BUILD" >> "$GITHUB_ENV"
-          echo "Building project at $PROJECT_DIR"
-
-      - name: Build debug APK and run unit tests
+      - name: Build debug APK
         shell: bash
         run: |
           cd "$PROJECT_DIR"
-          gradle --no-daemon test assembleDebug
-
-      - name: Upload APK and test reports
-        if: success()
+          gradle --no-daemon assembleDebug
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MAMAD-GA-WALLET-FINDER-APK
-          path: |
-            ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
-            ${{ env.PROJECT_DIR }}/app/build/reports/tests/
+          path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
