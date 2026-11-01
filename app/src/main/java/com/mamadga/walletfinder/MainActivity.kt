@@ -48,8 +48,8 @@ class MainActivity : FragmentActivity() {
         label(title, 16, -1, true, Gravity.CENTER)
         space(14)
     }
-    private fun label(value: String, size: Float = 14f, color: Int = -1, bold: Boolean = false, gravity: Int = Gravity.START): TextView {
-        val v = TextView(this).apply { text = value; textSize = size; setTextColor(color); this.gravity = gravity; if (bold) setTypeface(null, 1); setPadding(4, 8, 4, 8) }
+    private fun label(value: String, size: Int = 14, color: Int = -1, bold: Boolean = false, gravity: Int = Gravity.START): TextView {
+        val v = TextView(this).apply { text = value; textSize = size.toFloat(); setTextColor(color); this.gravity = gravity; if (bold) setTypeface(null, 1); setPadding(4, 8, 4, 8) }
         root.addView(v, LinearLayout.LayoutParams(-1, -2)); return v
     }
     private fun button(value: String, action: () -> Unit) {
